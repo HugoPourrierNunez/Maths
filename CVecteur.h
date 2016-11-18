@@ -5,26 +5,29 @@
 #include "Polygon.h"
 #include <iostream>
 
-using namespace std;
-
 class CVecteur
 {
     public:
         CVecteur(float x, float y);
+		CVecteur(maths::Point p1, maths::Point p2);
 		CVecteur();
         virtual ~CVecteur();
         float getX();
         float getY();
         void setX(float x);
         void setY(float y);
-		Point Intersection(Point p1, Point p2, Point p3, Point p4);
-		static void OrganizePoint(Point* p1, Point* p2);
+		maths::Point Intersection(maths::Point p1, maths::Point p2, maths::Point p3, maths::Point p4);
+		maths::Point Intersection(CVecteur vecteur);
+		static void OrganizePoint(maths::Point* p1, maths::Point* p2);
+		void OrganizePoint();
 
 	protected:
     private:
         float m_dX;
         float m_dY;
         float m_dZ;
+		maths::Point m_p1;
+		maths::Point m_p2;
 };
 
 #endif // CVECTEUR_H

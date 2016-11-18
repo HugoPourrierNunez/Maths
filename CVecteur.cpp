@@ -1,4 +1,7 @@
 #include "CVecteur.h"
+#include <cmath> 
+
+using namespace std;
 
 CVecteur::CVecteur(float x, float y)
 {
@@ -7,6 +10,15 @@ CVecteur::CVecteur(float x, float y)
 }
 CVecteur::CVecteur()
 {
+}
+
+CVecteur::CVecteur(maths::Point p1, maths::Point p2)
+{
+	m_p1 = p1;
+	m_p2 = p2;
+
+	m_dX = (p2.x - p1.x) / (p2.y - p1.y);
+	m_dY = (p2.y - p1.y) / (p2.x - p1.x);
 }
 
 CVecteur::~CVecteur()
@@ -35,9 +47,40 @@ void CVecteur::setY(float y)
     m_dY=y;
 }
 
+maths::Point CVecteur::Intersection(CVecteur vecteur)
+{
+	OrganizePoint();
+	vecteur.OrganizePoint();
+
+	maths::Point pointError;
+	pointError.x = pointError.y = -1.0f;
+	// Calcul des deux équations de droite
+	float coeffDir1 = (m_p2.y - m_p1.y) / (m_p2.x - m_p1.x);
+	float coeffDir2 = (vecteur.m_p2.y - vecteur.m_p1.y) / (vecteur.m_p2.x - vecteur.m_p1.x);
+
+	cout << coeffDir1 << "  " << coeffDir2 << endl;
+	if (coeffDir1 == coeffDir2)
+	{
+		//cout << "C DLA MERDE" << endl;
+		return pointError;
+	}
+
+	float b1 = m_p1.y - coeffDir1*m_p1.x;
+	float b2 = vecteur.m_p1.y - coeffDir2*vecteur.m_p1.x;
+	maths::Point p;
+	p.x = -((b1 - b2) / (coeffDir1 - coeffDir2));
+	p.y = coeffDir1 * p.x + b1;
+
+	if (p.x < m_p1.x || p.x > m_p2.x || p.x < vecteur.m_p1.x || p.x > vecteur.m_p2.x)
+	{
+		return pointError;
+	}
+
+	return p;
+}
 
 
-Point CVecteur::Intersection(Point p1, Point p2, Point p3, Point p4)
+maths::Point CVecteur::Intersection(maths::Point p1, maths::Point p2, maths::Point p3, maths::Point p4)
 {
 	cout << p1.x << "  " << p1.y << "        " << p2.x << "  " << p2.y << endl;
 	CVecteur::OrganizePoint(&p1, &p2);
@@ -45,7 +88,7 @@ Point CVecteur::Intersection(Point p1, Point p2, Point p3, Point p4)
 
 
 	
-	Point pointError;
+	maths::Point pointError;
 	pointError.x = pointError.y = -1.0f;
 	// Calcul des deux équations de droite
 	float coeffDir1 = (p2.y - p1.y) / (p2.x - p1.x);
@@ -60,7 +103,7 @@ Point CVecteur::Intersection(Point p1, Point p2, Point p3, Point p4)
 
 	float b1 = p1.y - coeffDir1*p1.x;
 	float b2 = p3.y - coeffDir2*p3.x;
-	Point p;
+	maths::Point p;
 	p.x = -((b1 - b2) / (coeffDir1 - coeffDir2));
 	p.y = coeffDir1 * p.x + b1;
 	
@@ -73,7 +116,7 @@ Point CVecteur::Intersection(Point p1, Point p2, Point p3, Point p4)
 }
 
 
-void CVecteur::OrganizePoint(Point* p1, Point* p2)
+void CVecteur::OrganizePoint(maths::Point* p1, maths::Point* p2)
 {
 	if (p1->x > p2->x)
 	{
@@ -84,6 +127,22 @@ void CVecteur::OrganizePoint(Point* p1, Point* p2)
 		tmp = p1->y;
 		p1->y = p2->y;
 		p2->y = tmp;
+
+	}
+}
+
+
+void CVecteur::OrganizePoint()
+{
+	if (m_p1.x > m_p2.x)
+	{
+		float tmp = m_p1.x;
+		m_p1.x = m_p2.x;
+		m_p2.x = tmp;
+
+		tmp = m_p1.y;
+		m_p1.y = m_p2.y;
+		m_p2.y = tmp;
 
 	}
 }

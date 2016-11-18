@@ -152,15 +152,19 @@
   <ItemGroup>
     <ClCompile Include="..\common\EsgiShader.cpp" />
     <ClCompile Include="CVecteur.cpp" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Polygon.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SquareMatrice.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\EsgiShader.h" />
     <ClInclude Include="CVecteur.h" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="Polygon.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="SquareMatrice.h" />
   </ItemGroup>
   <ItemGroup>
