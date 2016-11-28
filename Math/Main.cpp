@@ -43,6 +43,7 @@ static const float g_TriangleAttribs[] = {
 
 int width = 800;
 int height = 600;
+int g_nWindowID;
 
 void animate()
 {
@@ -76,13 +77,26 @@ void animate()
 	glutSwapBuffers();
 }
 
+// fonction de gestion du clavier
+void KeyBoard(unsigned char touche, int x, int y)
+{
+	// traitement des touches q et echap
+	if (touche == 'q' || touche == 27)
+	{
+		// destruction de la fenetre GLUT
+		glutDestroyWindow(g_nWindowID);
+		// on quitte le programme
+		exit(EXIT_SUCCESS);
+	}
+}
+
 int main(int argc, const char* argv)
 {
 	glutInit(&argc, (char **)argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(200, 100);
 	glutInitWindowSize(width, height);
-	glutCreateWindow("Triangle");
+	g_nWindowID = glutCreateWindow("Maths");
 
 	#ifndef NO_GLEW
 	glewInit();
@@ -93,6 +107,7 @@ int main(int argc, const char* argv)
 	g_BasicShader.CreateProgram();
 
 	glutDisplayFunc(animate);
+	glutKeyboardFunc(KeyBoard);
 	glutMainLoop();
 
 	g_BasicShader.DestroyProgram();
