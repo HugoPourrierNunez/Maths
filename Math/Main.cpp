@@ -4,6 +4,10 @@
 #include <Windows.h>
 #endif
 
+#include <iostream>
+
+using namespace std;
+
 #ifdef NO_GLEW
 #include <gl/GL.h>
 #include "glext.h"
@@ -78,7 +82,7 @@ void animate()
 }
 
 // fonction de gestion du clavier
-void KeyBoard(unsigned char touche, int x, int y)
+void KeyBoardDetect(unsigned char touche, int x, int y)
 {
 	// traitement des touches q et echap
 	if (touche == 'q' || touche == 27)
@@ -89,6 +93,23 @@ void KeyBoard(unsigned char touche, int x, int y)
 		exit(EXIT_SUCCESS);
 	}
 }
+
+// fonction de gestion de la souris
+void MouseDetect(int button, int state, int x, int y)
+{
+	switch (button)
+	{
+	case GLUT_LEFT_BUTTON:   //gestion du bouton gauche
+		if (state == GLUT_DOWN)   //Si le bouton gauche est clicker
+			cout << "Click gauche detecte \n" << endl;  //On affiche un message comme quoi le bouton a ete enfonce
+		break;
+	case GLUT_RIGHT_BUTTON:  //gestion du bouton droit de la souris
+		if (stat == GLUT_DOWN)  //si le bouton est enfonce
+			cout << "Bouton droit de la souris clicker\n" << endl;  //Affichage du message
+		break;
+	}
+}
+
 
 int main(int argc, const char* argv)
 {
@@ -107,7 +128,8 @@ int main(int argc, const char* argv)
 	g_BasicShader.CreateProgram();
 
 	glutDisplayFunc(animate);
-	glutKeyboardFunc(KeyBoard);
+	glutMouseFunc(MouseDetect);
+	glutKeyboardFunc(KeyBoardDetect);
 	glutMainLoop();
 
 	g_BasicShader.DestroyProgram();

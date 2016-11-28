@@ -1,17 +1,2 @@
-﻿  SquareMatrice.cpp
-c:\users\anthony\documents\git\maths\math\squarematrice.cpp(15): warning C4018: '<' : incompatibilité signed/unsigned
-c:\users\anthony\documents\git\maths\math\squarematrice.cpp(17): warning C4018: '<' : incompatibilité signed/unsigned
-c:\users\anthony\documents\git\maths\math\squarematrice.cpp(34): warning C4018: '<' : incompatibilité signed/unsigned
-c:\users\anthony\documents\git\maths\math\squarematrice.cpp(61): warning C4018: '<' : incompatibilité signed/unsigned
-c:\users\anthony\documents\git\maths\math\squarematrice.cpp(63): warning C4018: '<' : incompatibilité signed/unsigned
-c:\users\anthony\documents\git\maths\math\squarematrice.cpp(66): warning C4018: '<' : incompatibilité signed/unsigned
-  Scene.cpp
-  Polygon.cpp
-  Main.cpp
-  Input.cpp
-c:\users\anthony\documents\git\maths\math\input.cpp(88): warning C4244: '=' : conversion de 'int' en 'float', perte possible de données
-c:\users\anthony\documents\git\maths\math\input.cpp(89): warning C4244: '=' : conversion de 'int' en 'float', perte possible de données
-  EsgiShader.cpp
-  Génération de code en cours...
-  Triangle.vcxproj -> C:\Users\Anthony\Documents\GIT\Maths\Math\Debug\Triangle.exe
+﻿  Triangle.vcxproj -> C:\Users\Anthony\Documents\GIT\Maths\Math\Debug\Triangle.exe
   Triangle.vcxproj -> C:\Users\Anthony\Documents\GIT\Maths\Math\Debug\Triangle.pdb (Full PDB)
