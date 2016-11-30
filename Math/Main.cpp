@@ -5,6 +5,7 @@
 #endif
 
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -24,41 +25,24 @@ using namespace std;
 
 // Variables globales
 EsgiShader g_BasicShader;
+int width = 800;
+int height = 600;
+int g_nWindowID;
 bool g_bDetectLeftClic = false;
 float g_posXClic = 0;
 float g_posYClic = 0;
 float g_lastPosXClic = 0;
 float g_lastPosYClic = 0;
+float v = 2.0f / (float)width;
+float w = 2.0f / (float)height;
+int nbSommet = 2;
+// Tableau de segment d'un polygone
+vector<float> arrayLine;
 
-static const float g_Triangle[] = {
-	-0.8f, .8f,
-	0.f, -.8f,
-	.8f, .8f
-};
-
-static const float g_Color[] = {
-	1.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f,
-	0.0f, 0.0f, 1.0f
-};
-
-static const float g_TriangleAttribs[] = {
-	-0.8f, .8f,
-	1.0f, 0.0f, 0.0f,
-	0.f, -.8f,
-	0.0f, 1.0f, 0.0f,
-	.8f, .8f,
-	0.0f, 0.0f, 1.0f
-};
-
-int width = 800;
-int height = 600;
-int g_nWindowID;
 
 void animate()
 {
 	glViewport(0, 0, width, height);
-	glOrtho(0.f, width, height, 0.f, 0.f, 1.f);
 	glClearColor(0.f, 0.f, 0.f, 1.f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -75,27 +59,27 @@ void animate()
 		{
 			g_lastPosXClic = g_posXClic;
 			g_lastPosYClic = g_posYClic;
+
+			arrayLine.push_back(g_lastPosXClic);
+			arrayLine.push_back(g_lastPosYClic);
 		}
 		else
 		{	
 			// On assigne ca au vertex buffer
-			GLfloat vertex_buffer_data[]{g_lastPosXClic , g_lastPosYClic , g_posXClic , g_posYClic };
+			arrayLine.push_back(g_posXClic);
+			arrayLine.push_back(g_posYClic);
 
+			GLfloat vertex_buffer_data[] = {g_lastPosXClic , g_lastPosYClic , g_posXClic , g_posYClic };	
+
+			// POUR AFFICHER TOUTES LES LIGNES, ON LES METS TOUS LES SOMMETS DANS LE VERTEX BUFFER 
 			/*
-			for (int i = 0; i < 4; i++)
+			GLfloat *vertex_buffer_data = new GLfloat[arrayLine.size()];
+
+			for (int i = 0; i < arrayLine.size(); i++)
 			{
-				if (tab[i] <= 400)
-				{
-					vertex_buffer_data[i] = -1 * (1.f / tab[i]);
-				}
-				else
-				{
-					vertex_buffer_data[i] = 1.f / tab[i];
-				}
+				vertex_buffer_data[i] = arrayLine[i];
 			}
 			*/
-
-			
 
 			// Identificateurs des sommets
 			GLuint vertexbuffer;
@@ -122,8 +106,8 @@ void animate()
 			);
 
 			// Dessine la ligne
-			glDrawArrays(GL_LINES, 0, 2); // Démarre à partir du sommet 0; 2 sommets au total
-
+			glDrawArrays(GL_LINES, 0, nbSommet); // Démarre à partir du sommet 0; 2 sommets au total
+			//nbSommet += 2;
 			glDisableVertexAttribArray(0);
 
 			g_lastPosXClic = g_posXClic;
@@ -159,8 +143,6 @@ void KeyBoardDetect(unsigned char touche, int x, int y)
 // fonction de gestion de la souris
 void MouseDetect(int button, int state, int x, int y)
 {
-	double v;
-	double w;
 	switch (button)
 	{
 		case GLUT_LEFT_BUTTON:   //gestion du bouton gauche*/
@@ -168,10 +150,8 @@ void MouseDetect(int button, int state, int x, int y)
 				g_bDetectLeftClic = true;
 				
 			// Attention important ici, on convertit en unité opengl
-				v = 2.0 / (double)width;
-				w = 2.0 / (double)height;
-				g_posXClic = v * (double)x - 1.0;
-				g_posYClic = w * (double)y - 1.0;
+				g_posXClic = (v * (double)x - 1.0f);
+				g_posYClic = (w * (double)y - 1.0f);
 			break;
 		case GLUT_RIGHT_BUTTON:  //gestion du bouton droit de la souris
 			if (stat == GLUT_DOWN)  //si le bouton est enfonce
