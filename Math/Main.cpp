@@ -25,10 +25,10 @@ using namespace std;
 // Variables globales
 EsgiShader g_BasicShader;
 bool g_bDetectLeftClic = false;
-int g_posXClic = 0;
-int g_posYClic = 0;
-int g_lastPosXClic = 0;
-int g_lastPosYClic = 0;
+float g_posXClic = 0;
+float g_posYClic = 0;
+float g_lastPosXClic = 0;
+float g_lastPosYClic = 0;
 
 static const float g_Triangle[] = {
 	-0.8f, .8f,
@@ -58,7 +58,8 @@ int g_nWindowID;
 void animate()
 {
 	glViewport(0, 0, width, height);
-	glClearColor(1.f, 1.f, 0.f, 1.f);
+	glOrtho(0.f, width, height, 0.f, 0.f, 1.f);
+	glClearColor(0.f, 0.f, 0.f, 1.f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	auto program = g_BasicShader.GetProgram();
@@ -77,14 +78,24 @@ void animate()
 		}
 		else
 		{	
-			// On convertit de l'unité pixel habituelle à l'unité openGL
-			float opGLPosX1 = -0.5f;
-			float opGLPosY1 = 0.f;
-			float opGLPosX2 = 0.5f;
-			float opGLPosY2 = 0.f;
-
 			// On assigne ca au vertex buffer
-			GLfloat g_vertex_buffer_data[] = { opGLPosX1, opGLPosY1, opGLPosX2, opGLPosY2 };
+			GLfloat vertex_buffer_data[]{g_lastPosXClic , g_lastPosYClic , g_posXClic , g_posYClic };
+
+			/*
+			for (int i = 0; i < 4; i++)
+			{
+				if (tab[i] <= 400)
+				{
+					vertex_buffer_data[i] = -1 * (1.f / tab[i]);
+				}
+				else
+				{
+					vertex_buffer_data[i] = 1.f / tab[i];
+				}
+			}
+			*/
+
+			
 
 			// Identificateurs des sommets
 			GLuint vertexbuffer;
@@ -96,7 +107,7 @@ void animate()
 			glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
 			// Fournit les sommets à OpenGL.
-			glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_buffer_data), vertex_buffer_data, GL_STATIC_DRAW);
 
 			// premier tampon d'attributs : les sommets
 			glEnableVertexAttribArray(0);
@@ -127,20 +138,6 @@ void animate()
 		g_posYClic = 0;
 	}
 
-	glVertexAttribPointer(color_location, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), &g_TriangleAttribs[2]);
-	glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), &g_TriangleAttribs[0]);
-
-	//glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), g_Triangle);
-	//glVertexAttribPointer(color_location, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), g_Color);
-
-	glEnableVertexAttribArray(position_location);
-	glEnableVertexAttribArray(color_location);
-
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-
-	glDisableVertexAttribArray(position_location);
-	glDisableVertexAttribArray(color_location);
-
 	glUseProgram(0);
 
 	glutSwapBuffers();
@@ -162,14 +159,19 @@ void KeyBoardDetect(unsigned char touche, int x, int y)
 // fonction de gestion de la souris
 void MouseDetect(int button, int state, int x, int y)
 {
+	double v;
+	double w;
 	switch (button)
 	{
 		case GLUT_LEFT_BUTTON:   //gestion du bouton gauche*/
 			if (state == GLUT_DOWN)   //Si le bouton gauche est clicker
-				//cout << "Click gauche detecte \n" << endl;  //On affiche un message comme quoi le bouton a ete enfonce
 				g_bDetectLeftClic = true;
-				g_posXClic = x;
-				g_posYClic = y;
+				
+			// Attention important ici, on convertit en unité opengl
+				v = 2.0 / (double)width;
+				w = 2.0 / (double)height;
+				g_posXClic = v * (double)x - 1.0;
+				g_posYClic = w * (double)y - 1.0;
 			break;
 		case GLUT_RIGHT_BUTTON:  //gestion du bouton droit de la souris
 			if (stat == GLUT_DOWN)  //si le bouton est enfonce
