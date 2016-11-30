@@ -22,7 +22,11 @@ using namespace std;
 
 #include "../common/EsgiShader.h"
 
+// Variables globales
 EsgiShader g_BasicShader;
+bool g_bDetectLeftClic = false;
+int g_fPosXClic = 0;
+int g_fPosYClic = 0;
 
 static const float g_Triangle[] = {
 	-0.8f, .8f,
@@ -62,6 +66,16 @@ void animate()
 	auto color_location = glGetAttribLocation(program, "a_Color");
 	auto position_location = glGetAttribLocation(program, "a_Position");
 
+	if (g_bDetectLeftClic == true)
+	{
+		cout << "Click gauche detecte \n" << endl;
+		// Attention ici on récupère des valeurs de x tel que 0 < x < 800 et des valeurs de y tel que 0 < y < 600
+		cout << "X : " << g_fPosXClic << " - Y : " << g_fPosYClic << endl;
+		g_bDetectLeftClic = false;
+		g_fPosXClic = 0;
+		g_fPosYClic = 0;
+	}
+
 	glVertexAttribPointer(color_location, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), &g_TriangleAttribs[2]);
 	glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), &g_TriangleAttribs[0]);
 
@@ -99,14 +113,17 @@ void MouseDetect(int button, int state, int x, int y)
 {
 	switch (button)
 	{
-	case GLUT_LEFT_BUTTON:   //gestion du bouton gauche
-		if (state == GLUT_DOWN)   //Si le bouton gauche est clicker
-			cout << "Click gauche detecte \n" << endl;  //On affiche un message comme quoi le bouton a ete enfonce
-		break;
-	case GLUT_RIGHT_BUTTON:  //gestion du bouton droit de la souris
-		if (stat == GLUT_DOWN)  //si le bouton est enfonce
-			cout << "Bouton droit de la souris clicker\n" << endl;  //Affichage du message
-		break;
+		case GLUT_LEFT_BUTTON:   //gestion du bouton gauche*/
+			if (state == GLUT_DOWN)   //Si le bouton gauche est clicker
+				//cout << "Click gauche detecte \n" << endl;  //On affiche un message comme quoi le bouton a ete enfonce
+				g_bDetectLeftClic = true;
+				g_fPosXClic = x;
+				g_fPosYClic = y;
+			break;
+		case GLUT_RIGHT_BUTTON:  //gestion du bouton droit de la souris
+			if (stat == GLUT_DOWN)  //si le bouton est enfonce
+				cout << "Bouton droit de la souris clicker\n" << endl;  //Affichage du message
+			break;
 	}
 }
 
