@@ -298,6 +298,10 @@ void Scene::mainLoop()
 		}
 
 		break;
+	case FILL:
+		LCARemplissage(polygons->at(0));
+		std::cout << "Lecture des points d'intersection en debug." << std::endl;
+		break;
 	}
 
 	glUseProgram(0);
@@ -316,7 +320,10 @@ void Scene::changeState(State s)
 		polygons->push_back(*(new maths::Polygon()));
 		break;
 	case DRAW:
-
+		break;
+	case FILL:
+		break;
+	default:
 		break;
 	}
 }
@@ -354,6 +361,50 @@ void Scene::drawChar(const char c, const maths::Point position, const maths::Col
 	glRasterPos2i(20, 20);
 	void * font = GLUT_BITMAP_9_BY_15;
 	glutBitmapCharacter(font, c);
+}
+
+void Scene::LCARemplissage(maths::Polygon polygon)
+{
+	for(int y = 0; y < height; y++)
+	{
+		// On créé notre ligne de balayage
+		std::vector<maths::Point> ligneBallayage;// = new std::vector<maths::Point>();
+
+		maths::Point posXLigneBalayage;
+		posXLigneBalayage.x = 0;
+		posXLigneBalayage.y = y;
+		
+		maths:Point posYLigneBalayage;
+		posYLigneBalayage.x = width;
+		posYLigneBalayage.y = y;
+
+		ligneBallayage.push_back(posXLigneBalayage);
+		ligneBallayage.push_back(posYLigneBalayage);
+
+		// On récupère les points du polygon
+		maths::Point* pointsFromPolygon = polygon.getPoints()->data();
+		int nbPoint = polygon.getPoints()->size();
+
+		// On test les intersections entre la ligne de balayage et tous les côtés du polygon
+		for (int i = 0; i < nbPoint; i++)
+		{
+			maths::Point pointIntersection;
+			// Petit cas particulier pour le dernier point que l'on associe au premier point pour tester le côté qui ferme le polygon
+			if (i == nbPoint - 1)
+			{
+				pointIntersection = CVecteur::Intersection(ligneBallayage[0], ligneBallayage[1], pointsFromPolygon[i], pointsFromPolygon[0]);
+			}
+			else
+			{
+				pointIntersection = CVecteur::Intersection(ligneBallayage[0], ligneBallayage[1], pointsFromPolygon[i], pointsFromPolygon[i + 1]);
+			}
+		}
+
+		if (pointIntersection.x != -1 && pointInterection.y != -1)
+		{
+
+		}
+	}
 }
 
 Scene::Scene(int w, int h)

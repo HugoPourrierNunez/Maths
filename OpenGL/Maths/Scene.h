@@ -43,6 +43,7 @@ public:
 	void lauchOpenGLLoop();
 	//static void menuCallBack(int num);
 	void initOpenGl(int argc, const char* argv);
+	void LCARemplissage(maths::Polygon polygon);
 	void mainLoop();
 	void createMenu();
 	void changeState(State state);
