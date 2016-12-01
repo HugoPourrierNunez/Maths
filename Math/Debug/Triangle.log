@@ -1,5 +1,0 @@
-﻿  Main.cpp
-c:\users\anthony\documents\git\maths\math\main.cpp(150): warning C4244: '=' : conversion de 'double' en 'float', perte possible de données
-c:\users\anthony\documents\git\maths\math\main.cpp(151): warning C4244: '=' : conversion de 'double' en 'float', perte possible de données
-  Triangle.vcxproj -> C:\Users\Anthony\Documents\GIT\Maths\Math\Debug\Triangle.exe
-  Triangle.vcxproj -> C:\Users\Anthony\Documents\GIT\Maths\Math\Debug\Triangle.pdb (Full PDB)
