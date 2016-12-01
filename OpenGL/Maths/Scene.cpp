@@ -253,6 +253,12 @@ void Scene::mainLoop()
 		
 
 		break;
+
+	case FILL:
+		LCARemplissage(polygons->at(0));
+		std::cout << "Lecture des points d'intersection en debug." << std::endl;
+		break;
+
 	case ENTER_POINTS:
 
 		for (int i = 0; i < polygons->size()-1; i++)
@@ -298,10 +304,6 @@ void Scene::mainLoop()
 		}
 
 		break;
-	case FILL:
-		LCARemplissage(polygons->at(0));
-		std::cout << "Lecture des points d'intersection en debug." << std::endl;
-		break;
 	}
 
 	glUseProgram(0);
@@ -322,6 +324,7 @@ void Scene::changeState(State s)
 	case DRAW:
 		break;
 	case FILL:
+		LCARemplissage(polygons->at(0));
 		break;
 	default:
 		break;
@@ -365,10 +368,12 @@ void Scene::drawChar(const char c, const maths::Point position, const maths::Col
 
 void Scene::LCARemplissage(maths::Polygon polygon)
 {
-	for(int y = 0; y < height; y++)
+	for(int y = 1; y < height; y++)
 	{
+		int bitParite = 0;
+
 		// On créé notre ligne de balayage
-		std::vector<maths::Point> ligneBallayage;// = new std::vector<maths::Point>();
+		std::vector<maths::Point>* ligneBallayage = new std::vector<maths::Point>();
 
 		maths::Point posXLigneBalayage;
 		posXLigneBalayage.x = 0;
@@ -378,33 +383,75 @@ void Scene::LCARemplissage(maths::Polygon polygon)
 		posYLigneBalayage.x = width;
 		posYLigneBalayage.y = y;
 
-		ligneBallayage.push_back(posXLigneBalayage);
-		ligneBallayage.push_back(posYLigneBalayage);
+		ligneBallayage->push_back(posXLigneBalayage);
+		ligneBallayage->push_back(posYLigneBalayage);
 
 		// On récupère les points du polygon
-		maths::Point* pointsFromPolygon = polygon.getPoints()->data();
+		std::vector<maths::Point>* pointsFromPolygon = polygon.getPoints();
 		int nbPoint = polygon.getPoints()->size();
 
 		// On test les intersections entre la ligne de balayage et tous les côtés du polygon
+		std::vector<maths::Point>* pointsIntersection = new std::vector<maths::Point>();
 		for (int i = 0; i < nbPoint; i++)
 		{
 			maths::Point pointIntersection;
+
+			maths::Point* pointXLigneBalayage = ConvertPointPixelToOpenGLUnit(ligneBallayage->at(0));
+			maths::Point* pointYLigneBalayage = ConvertPointPixelToOpenGLUnit(ligneBallayage->at(1));
+
 			// Petit cas particulier pour le dernier point que l'on associe au premier point pour tester le côté qui ferme le polygon
 			if (i == nbPoint - 1)
 			{
-				pointIntersection = CVecteur::Intersection(ligneBallayage[0], ligneBallayage[1], pointsFromPolygon[i], pointsFromPolygon[0]);
+				pointIntersection = CVecteur::Intersection(*pointXLigneBalayage, *pointYLigneBalayage, pointsFromPolygon->at(i), pointsFromPolygon->at(0));
 			}
 			else
 			{
-				pointIntersection = CVecteur::Intersection(ligneBallayage[0], ligneBallayage[1], pointsFromPolygon[i], pointsFromPolygon[i + 1]);
+				pointIntersection = CVecteur::Intersection(*pointXLigneBalayage, *pointYLigneBalayage, pointsFromPolygon->at(i), pointsFromPolygon->at(i+1));
+			}
+
+			if (pointIntersection.x != -1 && pointIntersection.y != -1)
+			{
+				pointsIntersection->push_back(pointIntersection);
 			}
 		}
+		int i = y;
+		
+		std::vector<maths::Point>* test = pointsIntersection; // Pour debug
+		std::cout << "Nombre d'intersection à l'itération " << y << " : " << pointsIntersection->size() << std::endl;
 
-		if (pointIntersection.x != -1 && pointInterection.y != -1)
+		if (pointsIntersection->size() == 0)
 		{
-
+			// On dessine toute la ligne de balayage avec la couleur de fond
+		}
+		else
+		{	
+			// On dessine entre chaque intersection avec la bonne couleur
+			for (int i = 0; i < pointsIntersection->size(); i++)
+			{
+								
+				if (bitParite == 0)
+				{
+					bitParite = 1;
+				}
+				else
+				{
+					bitParite = 0;
+				}
+			}
 		}
 	}
+}
+
+maths::Point* Scene::ConvertPointPixelToOpenGLUnit(maths::Point point)
+{
+	maths::Point* pointOpenGL = new maths::Point();
+
+	float v = 2.0 / (double)width;
+	float w = 2.0 / (double)height;
+	pointOpenGL->x = v * (double)point.x - 1.0;
+	pointOpenGL->y = w * (double)point.y - 1.0;
+
+	return pointOpenGL;
 }
 
 Scene::Scene(int w, int h)
@@ -420,7 +467,6 @@ Scene::Scene(int w, int h)
 	radiusPoint.x = 10.0f/ width;
 	radiusPoint.y = 10.0f /height;
 }
-
 
 Scene::~Scene()
 {

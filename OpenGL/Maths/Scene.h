@@ -46,6 +46,7 @@ public:
 	void LCARemplissage(maths::Polygon polygon);
 	void mainLoop();
 	void createMenu();
+	maths::Point* ConvertPointPixelToOpenGLUnit(maths::Point point);
 	void changeState(State state);
 	State getState();
 	void addPoint(maths::Point p);
