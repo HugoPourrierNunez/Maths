@@ -246,19 +246,45 @@ void Scene::mainLoop()
 			glDisableVertexAttribArray(color_position);
 		}
 
-		
-
 		break;
 
 	case FILL:
+	{
 		if (allIntersection->size() == 0)
 		{
 			allIntersection = LCARemplissage(polygons->at(0));
 		}
 
-		std::cout << "Lecture des points d'intersection en debug." << std::endl;
-		break;
+		unsigned int nbIntersection = allIntersection->size();
 
+		if (nbIntersection != 0)
+		{
+			for (int i = 0; i<nbIntersection; i += 2)
+			{
+				glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, &allIntersection->at(i));
+				glEnableVertexAttribArray(position_location);
+
+				glDrawArrays(GL_LINES, 0, 2);
+				glDisableVertexAttribArray(position_location);
+				glDisableVertexAttribArray(color_position);
+			}
+
+		}
+		
+		for (int i = 0; i < polygons->size(); i++)
+		{
+			const maths::Point *points = polygons->at(i).getPoints()->data();
+			unsigned int size = polygons->at(i).getPoints()->size();
+
+			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, points);
+			glEnableVertexAttribArray(position_location);
+
+			glDrawArrays(GL_LINE_LOOP, 0, size);
+			glDisableVertexAttribArray(position_location);
+			glDisableVertexAttribArray(color_position);
+		}
+		break;
+	}
 	case ENTER_POINTS:
 
 		for (int i = 0; i < polygons->size()-1; i++)
