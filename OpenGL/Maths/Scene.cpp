@@ -17,6 +17,87 @@ void Scene::drawCallBack()
 	Scene::currentInstance->mainLoop();
 }
 
+void Scene::cut()
+{
+	std::cout << "start cut"<< std::endl;
+
+	if (polygons->size() < 2)
+		return;
+
+	maths::Polygon pol = polygons->at(1);
+	maths::Polygon win = polygons->at(0);
+
+	win.calculateNormals();
+	int nbPoint = pol.getPoints()->size();
+	int decallage = 0;
+	for (int i=0; i < nbPoint+decallage; i++)
+	{
+		std::cout << "test point n°" << i<<std::endl;
+		Point p1 = pol.getPoints()->at(i);
+		Point p2;
+		if(i== nbPoint + decallage -1)
+			p2= pol.getPoints()->at(0);
+		else
+			p2 = pol.getPoints()->at(i+1);
+
+		int nbPointWin = win.getPoints()->size();
+
+		for (int j=0; j < nbPointWin -1; j++)
+		{
+			Point p3 = win.getPoints()->at(j);
+			Point p4;
+			if (j == nbPointWin - 1)
+				p4 = win.getPoints()->at(0);
+			else
+				p4 = win.getPoints()->at(j + 1);
+
+			bool p1Visibility = Math::isPointVisible(p1, p3, win.getNormals()->at(j));
+			if (!p1Visibility)
+				pol.setVisibility(i, false);
+			bool p2Visibility = Math::isPointVisible(p2, p3, win.getNormals()->at(j));
+			if (p1Visibility != p2Visibility)
+			{
+				maths::Point intersection = Math::getIntersection(p1, p2, p3,p4);
+				if (intersection.x != -1 && intersection.y != -1)
+				{
+					std::vector<maths::Point> *v = pol.getPoints();
+					v->insert(v->begin(), intersection);
+					std::cout << "ajout d'un point" << std::endl;
+					i++;
+					decallage++;
+				}
+			}
+		}
+	}
+
+	/*nbPoint = pol.getPoints()->size();
+	decallage = 0;
+	for (int i = 0; i < nbPoint-decallage; i++)
+	{
+		std::cout << "test visibility point n°" << i << std::endl;
+		if (!pol.isPointVisible(i))
+		{
+			pol.removePoint(i);
+			i--;
+			decallage++;
+
+		}
+	}*/
+}
+
+void Scene::flush()
+{
+	if (state != ENTER_POINTS)
+	{
+		while (!polygons->empty())
+		{
+			polygons->pop_back();
+		}
+		glutPostRedisplay();
+	}
+	
+}
+
 void Scene::lauchOpenGLLoop()
 {
 	glutMainLoop();
