@@ -43,9 +43,10 @@ public:
 	void lauchOpenGLLoop();
 	//static void menuCallBack(int num);
 	void initOpenGl(int argc, const char* argv);
-	void LCARemplissage(maths::Polygon polygon);
+	std::vector<maths::Point>* LCARemplissage(maths::Polygon polygon);
 	void mainLoop();
 	void createMenu();
+	maths::Point* isVertexFromPolygon(maths::Polygon polygon, maths::Point pointTest);
 	maths::Point* ConvertPointPixelToOpenGLUnit(maths::Point point);
 	void changeState(State state);
 	State getState();

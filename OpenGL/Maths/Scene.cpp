@@ -5,6 +5,7 @@ using namespace maths;
 Scene* Scene::currentInstance=nullptr;
 State state;
 std::vector<maths::Polygon> *polygons;
+std::vector<maths::Point>* allIntersection = new std::vector<maths::Point>();
 int windowId;
 int value;
 int option;
@@ -136,11 +137,6 @@ void Scene::lauchOpenGLLoop()
 {
 	glutMainLoop();
 }
-/*
-void Scene::menuCallBack(int num)
-{
-	Scene::currentInstance->menu(num);
-}*/
 
 void Scene::initOpenGl(int argc, const char* argv)
 {
@@ -255,7 +251,11 @@ void Scene::mainLoop()
 		break;
 
 	case FILL:
-		LCARemplissage(polygons->at(0));
+		if (allIntersection->size() == 0)
+		{
+			allIntersection = LCARemplissage(polygons->at(0));
+		}
+
 		std::cout << "Lecture des points d'intersection en debug." << std::endl;
 		break;
 
@@ -324,7 +324,7 @@ void Scene::changeState(State s)
 	case DRAW:
 		break;
 	case FILL:
-		LCARemplissage(polygons->at(0));
+		//LCARemplissage(polygons->at(0));
 		break;
 	default:
 		break;
@@ -366,8 +366,13 @@ void Scene::drawChar(const char c, const maths::Point position, const maths::Col
 	glutBitmapCharacter(font, c);
 }
 
-void Scene::LCARemplissage(maths::Polygon polygon)
+// Paramètre : polygon que l'on veut colorier
+// Retour : tableau de points (traités comme des segments) qui doivent être colorié dans la mainLoop
+// But :  Détecter quelles zones sont à colorier
+std::vector<maths::Point>* Scene::LCARemplissage(maths::Polygon polygon)
 {
+	std::vector<maths::Point>* allPointToDraw = new std::vector<maths::Point>();
+
 	for(int y = 1; y < height; y++)
 	{
 		int bitParite = 0;
@@ -396,6 +401,7 @@ void Scene::LCARemplissage(maths::Polygon polygon)
 		{
 			maths::Point pointIntersection;
 
+			// Attention ici on converti les points du repère pixel de l'écran au repère OpenGL
 			maths::Point* pointXLigneBalayage = ConvertPointPixelToOpenGLUnit(ligneBallayage->at(0));
 			maths::Point* pointYLigneBalayage = ConvertPointPixelToOpenGLUnit(ligneBallayage->at(1));
 
@@ -419,27 +425,41 @@ void Scene::LCARemplissage(maths::Polygon polygon)
 		std::vector<maths::Point>* test = pointsIntersection; // Pour debug
 		std::cout << "Nombre d'intersection à l'itération " << y << " : " << pointsIntersection->size() << std::endl;
 
-		if (pointsIntersection->size() == 0)
+		if (pointsIntersection->size() != 0)
 		{
-			// On dessine toute la ligne de balayage avec la couleur de fond
-		}
-		else
-		{	
 			// On dessine entre chaque intersection avec la bonne couleur
 			for (int i = 0; i < pointsIntersection->size(); i++)
 			{
-								
-				if (bitParite == 0)
+				// On teste le cas particulier du passage de la ligne de balayage sur un sommet du polygon
+				maths::Point* peakDetect = isVertexFromPolygon(polygon, pointsIntersection->at(i));
+				if (peakDetect != nullptr)
 				{
-					bitParite = 1;
+					// On ajoute 2 fois car on traitra les points contenus dans le tableau 2 à 2 (segement)
+					allPointToDraw->push_back(*peakDetect);
+					allPointToDraw->push_back(*peakDetect);
 				}
 				else
 				{
-					bitParite = 0;
+					allPointToDraw->push_back(pointsIntersection->at(i));
 				}
 			}
 		}
 	}
+
+	return allPointToDraw;
+}
+
+maths::Point* Scene::isVertexFromPolygon(maths::Polygon polygon, maths::Point pointTest)
+{
+	for (int i = 0; i < polygon.getPoints()->size(); i++)
+	{
+		if (pointTest.x == polygon.getPoints()->at(i).x && pointTest.y == polygon.getPoints()->at(i).y)
+		{
+			return &(polygon.getPoints()->at(i));
+		}
+	}
+
+	return nullptr;
 }
 
 maths::Point* Scene::ConvertPointPixelToOpenGLUnit(maths::Point point)
