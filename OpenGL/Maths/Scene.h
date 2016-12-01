@@ -23,6 +23,7 @@
 #include "Input.h"
 
 #include "Polygon.h"
+#include "Math.h"
 
 class Scene
 {
@@ -40,6 +41,8 @@ class Scene
 
 
 public:
+	void cut();
+	void flush();
 	void lauchOpenGLLoop();
 	void initOpenGl(int argc, const char* argv);
 	void mainLoop();

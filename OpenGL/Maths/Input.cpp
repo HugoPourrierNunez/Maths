@@ -75,6 +75,13 @@ void Input::checkKeyboardInputs(unsigned char  touche, int x, int y)
 		scene->changeState(DRAW);
 		glutPostRedisplay();
 		break;
+	case 'c':
+		std::cout << "try CUT" << std::endl;
+		scene->cut();
+		break;
+	case 'd':
+		std::cout << "flush polygons" << std::endl;
+		scene->flush();
 	}
 
 	

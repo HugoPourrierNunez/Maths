@@ -23,11 +23,20 @@ namespace maths
 	class Polygon
 	{
 		std::vector<maths::Point> *points;
+		std::vector<maths::Point> *normals;
+		std::vector<maths::Point> *vectors;
+		std::vector<bool> *visibility;
 
 	public:
+		void calculateNormals();
+		void calculateVectors();
 		void addPoint(maths::Point p);
 		void removePoint();
-		const std::vector<maths::Point>* getPoints();
+		void removePoint(int index);
+		void setVisibility(int index, bool visible);
+		bool isPointVisible(int index);
+		std::vector<maths::Point>* getPoints();
+		const std::vector<maths::Point>* getNormals();
 		Polygon();
 		~Polygon();
 	};
