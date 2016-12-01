@@ -61,7 +61,6 @@ maths::Point CVecteur::Intersection(CVecteur vecteur)
 	cout << coeffDir1 << "  " << coeffDir2 << endl;
 	if (coeffDir1 == coeffDir2)
 	{
-		//cout << "C DLA MERDE" << endl;
 		return pointError;
 	}
 
@@ -82,7 +81,9 @@ maths::Point CVecteur::Intersection(CVecteur vecteur)
 
 maths::Point CVecteur::Intersection(maths::Point p1, maths::Point p2, maths::Point p3, maths::Point p4)
 {
-	cout << p1.x << "  " << p1.y << "        " << p2.x << "  " << p2.y << endl;
+
+	//cout << p1.x << "  " << p1.y << "        " << p2.x << "  " << p2.y << endl;
+
 	CVecteur::OrganizePoint(&p1, &p2);
 	CVecteur::OrganizePoint(&p3, &p4);
 
@@ -107,7 +108,7 @@ maths::Point CVecteur::Intersection(maths::Point p1, maths::Point p2, maths::Poi
 	p.x = -((b1 - b2) / (coeffDir1 - coeffDir2));
 	p.y = coeffDir1 * p.x + b1;
 	
-	if(p.x < p1.x || p.x > p2.x || p.x < p3.x || p.x > p4.x)
+	if(p.x < p1.x || p.x > p2.x || p.x < p3.x || p.x > p4.x )
 	{ 
 		return pointError;
 	}

@@ -30,6 +30,7 @@ namespace maths
 	public:
 		void calculateNormals();
 		void calculateVectors();
+		void addPoint(maths::Point p, int index);
 		void addPoint(maths::Point p);
 		void removePoint();
 		void removePoint(int index);

@@ -43,6 +43,12 @@ void maths::Polygon::addPoint(maths::Point p)
 	visibility->push_back(true);
 }
 
+void maths::Polygon::addPoint(maths::Point p, int index)
+{
+	points->insert(points->begin()+index, p);
+	visibility->insert(visibility->begin() + index, true);
+}
+
 void maths::Polygon::removePoint()
 {
 	if (!points->empty())

@@ -16,7 +16,7 @@ class CVecteur
         float getY();
         void setX(float x);
         void setY(float y);
-		maths::Point Intersection(maths::Point p1, maths::Point p2, maths::Point p3, maths::Point p4);
+		static maths::Point Intersection(maths::Point p1, maths::Point p2, maths::Point p3, maths::Point p4);
 		maths::Point Intersection(CVecteur vecteur);
 		static void OrganizePoint(maths::Point* p1, maths::Point* p2);
 		void OrganizePoint();
