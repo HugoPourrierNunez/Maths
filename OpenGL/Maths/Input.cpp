@@ -83,9 +83,9 @@ void Input::checkKeyboardInputs(unsigned char  touche, int x, int y)
 		std::cout << "flush polygons" << std::endl;
 		scene->flush();
 	}
-
-	
 }
+
+
 
 void Input::checkMouseClicks(int button, int state, int x, int y)
 {
@@ -97,6 +97,10 @@ void Input::checkMouseClicks(int button, int state, int x, int y)
 		//onMouse = 1;
 		glutPostRedisplay();
 	}
-
-	
+	/*
+	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
+	{
+		glutCreateMenu(Scene::menuCallBack);
+		glutAttachMenu(GLUT_RIGHT_BUTTON);
+	}*/
 }
