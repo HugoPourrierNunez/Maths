@@ -29,20 +29,18 @@ class Scene
 	static Scene* currentInstance;
 	maths::Point radiusPoint;
 	static void drawCallBack();
-	State state;
 	Input *input;
 	EsgiShader g_BasicShader;
 	int width;
 	int height;
-	std::vector<maths::Polygon> *polygons;
-
 	void drawChar(const char c, const maths::Point position, const maths::Color color);
-
 
 public:
 	void lauchOpenGLLoop();
+	//static void menuCallBack(int num);
 	void initOpenGl(int argc, const char* argv);
 	void mainLoop();
+	void createMenu();
 	void changeState(State state);
 	State getState();
 	void addPoint(maths::Point p);

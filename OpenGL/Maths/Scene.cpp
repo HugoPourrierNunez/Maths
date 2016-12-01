@@ -3,6 +3,14 @@
 using namespace maths;
 
 Scene* Scene::currentInstance=nullptr;
+State state;
+std::vector<maths::Polygon> *polygons;
+int windowId;
+int value;
+int option;
+int mainMenu;
+void menu(int num);
+bool isInPolygon = true;
 
 void Scene::drawCallBack()
 {
@@ -13,6 +21,11 @@ void Scene::lauchOpenGLLoop()
 {
 	glutMainLoop();
 }
+/*
+void Scene::menuCallBack(int num)
+{
+	Scene::currentInstance->menu(num);
+}*/
 
 void Scene::initOpenGl(int argc, const char* argv)
 {
@@ -20,7 +33,9 @@ void Scene::initOpenGl(int argc, const char* argv)
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(200, 100);
 	glutInitWindowSize(width, height);
-	glutCreateWindow("Triangle");
+	windowId = glutCreateWindow("Math");
+
+	createMenu();
 
 #ifndef NO_GLEW
 	glewInit();
@@ -38,33 +53,69 @@ void Scene::initOpenGl(int argc, const char* argv)
 	
 }
 
+void Scene::createMenu()
+{
+	option = glutCreateMenu(menu);
+
+	glutAddMenuEntry("Draw points    A", 1);
+	glutAddMenuEntry("Draw polygon   Z", 2);
+	glutAddMenuEntry("Cut            C", 3);
+	glutAddMenuEntry("Fill           F", 4);
+
+	
+	mainMenu = glutCreateMenu(menu);
+
+	glutAddSubMenu("Options", option);
+	glutAddMenuEntry("Exit", 0);
+	
+	if (isInPolygon)
+	{
+		glutAddMenuEntry("Coloring polygon", 5);
+	}
+
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
+}
+
+// On traite ici le choix de l'utilisateur dans le menu contextuel
+void menu(int num) {
+	switch (num)
+	{
+	case 0:
+		glutDestroyWindow(windowId);
+		exit(0);
+		break;
+	case 1:
+		state = ENTER_POINTS;
+		polygons->push_back(*(new maths::Polygon()));
+		break;
+	case 2:
+		state = DRAW;
+		break;
+	case 3:
+		break;
+	case 4:
+		break;
+	case 5:
+		break;
+	default:
+		break;
+	}
+
+	glutPostRedisplay();
+}
+
 void Scene::mainLoop()
 {
 	glViewport(0, 0, width, height);
 	glClearColor(1.f, 1.f, 1.f, 1.f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	
 	auto program = g_BasicShader.GetProgram();
 	glUseProgram(program);
 
 	auto color_position = glGetAttribLocation(program, "a_Color");
 	auto position_location = glGetAttribLocation(program, "a_Position");
-
-	float position[] = {
-		-0.7, -.5f,
-		-.5f, .5f,
-		.7f, .5f,
-		.5f, -.5f
-	};
-
-	float color[] = {
-		1.0f,  0.0f,  0.0f,
-		0.0f,  1.0f,  0.0f,
-		1.0f,  0.0f,  0.0f,
-		0.0f,  0.0f,  1.0f
-	};
-
-
 
 	switch (state)
 	{
@@ -76,7 +127,7 @@ void Scene::mainLoop()
 			const maths::Point *points =  polygons->at(i).getPoints()->data();
 			unsigned int size = polygons->at(i).getPoints()->size();
 
-			 glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, points);
+			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, points);
 			glEnableVertexAttribArray(position_location);
 
 			glDrawArrays(GL_LINE_LOOP, 0, size);
@@ -106,6 +157,7 @@ void Scene::mainLoop()
 		unsigned int size = polygons->back().getPoints()->size();
 		
 		maths::Point tmpPoints[4];
+
 		for (int i = 0; i < size; i++)
 		{
 			
@@ -128,12 +180,6 @@ void Scene::mainLoop()
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			glDisableVertexAttribArray(position_location);
 			glDisableVertexAttribArray(color_position);
-
-			/*Color c;
-			c.r = 1;
-			glUseProgram(0);
-			drawChar('1', points[i], c);
-			glUseProgram(program);*/
 		}
 
 		break;
@@ -143,8 +189,6 @@ void Scene::mainLoop()
 
 	glutSwapBuffers();
 }
-
-
 
 void Scene::changeState(State s)
 {
@@ -197,14 +241,12 @@ void Scene::drawChar(const char c, const maths::Point position, const maths::Col
 	glutBitmapCharacter(font, c);
 }
 
-
-
-
 Scene::Scene(int w, int h)
 {
 	state = DRAW;
 	height = h;
 	width = w;
+	value = 0;
 	Scene::currentInstance = this;
 	input = new Input(this);
 	polygons = new std::vector<maths::Polygon>();

@@ -67,5 +67,8 @@
     <ResourceCompile Include="Maths.rc">
       <Filter>Fichiers de ressources</Filter>
     </ResourceCompile>
+    <ResourceCompile Include="resource.rc">
+      <Filter>Fichiers de ressources</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
