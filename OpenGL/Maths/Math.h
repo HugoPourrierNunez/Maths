@@ -3,6 +3,8 @@
 
 #include "Polygon.h"
 
+#include <iostream>
+
 class Math
 {
 	

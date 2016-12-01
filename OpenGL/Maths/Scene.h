@@ -38,6 +38,7 @@ class Scene
 
 public:
 	void cut();
+	void cut2();
 	void flush();
 	void lauchOpenGLLoop();
 	//static void menuCallBack(int num);

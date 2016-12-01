@@ -27,6 +27,8 @@ void Scene::cut()
 	maths::Polygon pol = polygons->at(1);
 	maths::Polygon win = polygons->at(0);
 
+	//maths::Polygon *newPol = new maths::Polygon();
+
 	win.calculateNormals();
 	int nbPoint = pol.getPoints()->size();
 	int decallage = 0;
@@ -34,6 +36,7 @@ void Scene::cut()
 	{
 		std::cout << "test point n°" << i<<std::endl;
 		Point p1 = pol.getPoints()->at(i);
+		std::cout << "x=" << p1.x << "		y=" << p1.y << std::endl;
 		Point p2;
 		if(i== nbPoint + decallage -1)
 			p2= pol.getPoints()->at(0);
@@ -57,12 +60,13 @@ void Scene::cut()
 			bool p2Visibility = Math::isPointVisible(p2, p3, win.getNormals()->at(j));
 			if (p1Visibility != p2Visibility)
 			{
-				maths::Point intersection = Math::getIntersection(p1, p2, p3,p4);
-				if (intersection.x != -1 && intersection.y != -1)
+				maths::Point intersection = CVecteur::Intersection(p1, p2, p3,p4);
+
+				if (intersection.x != -1.0 && intersection.y != -1.0 /*&& (p1.x==intersection.x && p1.y==intersection.y)!=true*/)
 				{
-					std::vector<maths::Point> *v = pol.getPoints();
-					v->insert(v->begin(), intersection);
+					pol.addPoint(intersection, i+1);
 					std::cout << "ajout d'un point" << std::endl;
+					std::cout << "x=" << intersection .x<<"		y="<< intersection.y<< std::endl;
 					i++;
 					decallage++;
 				}
@@ -70,7 +74,8 @@ void Scene::cut()
 		}
 	}
 
-	/*nbPoint = pol.getPoints()->size();
+	nbPoint = pol.getPoints()->size();
+	std::cout << "nbpoint=" << nbPoint << std::endl;
 	decallage = 0;
 	for (int i = 0; i < nbPoint-decallage; i++)
 	{
@@ -81,6 +86,35 @@ void Scene::cut()
 			i--;
 			decallage++;
 
+		}
+	}
+	nbPoint = pol.getPoints()->size();
+	std::cout << "nbpoint=" << nbPoint << std::endl;
+}
+
+void Scene::cut2()
+{
+	/*if (polygons->size() < 2)
+		return;
+
+	maths::Polygon pol = polygons->at(1);
+	maths::Polygon win = polygons->at(0);
+
+	int n3 = win.getPoints()->size();
+	int n1 = pol.getPoints()->size();
+	int n2;
+	maths::Point s, f, i;
+
+	std::vector<maths::Point> *ps;
+
+	for (int i = 0; i < n3-1 ;)
+	{
+		n2 = 0;
+		ps = new std::vector<maths::Point>();
+		for (int j = 0; j < n1;)
+		{
+			if(j==0)
+				f=pol.getPoints()->at()
 		}
 	}*/
 }
