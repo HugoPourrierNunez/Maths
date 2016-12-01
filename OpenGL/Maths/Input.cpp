@@ -82,6 +82,13 @@ void Input::checkKeyboardInputs(unsigned char  touche, int x, int y)
 	case 'd':
 		std::cout << "flush polygons" << std::endl;
 		scene->flush();
+		break;	
+	case 'q':
+		std::cout << "Lecture point intersection" << std::endl;
+		scene->changeState(FILL);
+		break;
+	default:
+		break;
 	}
 }
 
