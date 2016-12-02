@@ -1,7 +1,5 @@
 #include "Math.h"
 
-
-
 bool Math::isPointVisible(maths::Point polPoint, maths::Point winPoint, maths::Point n)
 {
 	return ((n.x*(polPoint.x - winPoint.x) + n.y*(polPoint.y - winPoint.y))>=-0.001);

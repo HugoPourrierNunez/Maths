@@ -539,9 +539,20 @@ std::vector<maths::Point>* Scene::LCARemplissage(maths::Polygon polygon)
 
 			if (pointIntersection.x != -1 && pointIntersection.y != -1)
 			{
-				pointsIntersection->push_back(pointIntersection);
+				// TODO: Faire le tri ici
+				//Fait ! :)
+				int i = 0;
+				while (i < pointsIntersection->size())
+				{
+					if (pointsIntersection->at(i).x > pointIntersection.x)
+						break;
+					i++;
+				}
+				if (i == pointsIntersection->size())
+					pointsIntersection->push_back(pointIntersection);
+				else
+					pointsIntersection->insert(pointsIntersection->begin() + i, pointIntersection);
 			}
-			// TODO: Faire le tri ici
 		}
 		
 		if (pointsIntersection->size() != 0)
