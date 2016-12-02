@@ -45,10 +45,12 @@ class Scene
 	bool isInPolygon = true; 
 	State state;
 	std::vector<maths::Polygon> *polygons; 
+	maths::Polygon *window;
 	std::vector<maths::Point> *allIntersection ;
 	std::vector<maths::Polygon> *stackPolygonClicked ;
 
 public:
+	void cut(maths::Polygon pol);
 	void cut();
 	void flush();
 	void lauchOpenGLLoop();

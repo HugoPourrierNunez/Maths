@@ -67,7 +67,12 @@ void Input::checkKeyboardInputs(unsigned char  touche, int x, int y)
 	{
 	case 'a':
 		std::cout << "change state : ENTER_POINTS" << std::endl;
-		scene->changeState(ENTER_POINTS);
+		scene->changeState(ENTER_POLYGON);
+		glutPostRedisplay();
+		break;
+	case 'q':
+		std::cout << "change state : ENTER_POINTS" << std::endl;
+		scene->changeState(ENTER_WINDOW);
 		glutPostRedisplay();
 		break;
 	case 'z':
@@ -102,7 +107,8 @@ void Input::checkKeyboardInputs(unsigned char  touche, int x, int y)
 
 void Input::checkMouseClicks(int button, int state, int x, int y)
 {
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && scene->getState()== ENTER_POINTS) {
+	State sceneState = scene->getState();
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && (sceneState ==ENTER_POLYGON || sceneState ==ENTER_WINDOW)) {
 		maths::Point p;
 		p.x = x;
 		p.y = y;

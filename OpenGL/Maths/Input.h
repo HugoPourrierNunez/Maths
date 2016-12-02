@@ -25,7 +25,7 @@ enum ButtonState {
 };
 
 enum State {
-	ENTER_POINTS, DRAW, FILL, COLOR
+	ENTER_POLYGON, ENTER_WINDOW, DRAW, FILL, COLOR
 };
 
 class Scene;

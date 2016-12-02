@@ -15,15 +15,12 @@ void Scene::drawCallBack()
 	Scene::currentInstance->mainLoop();
 }
 
-void Scene::cut()
+void Scene::cut(maths::Polygon pol)
 {
 	std::cout << "start cut"<< std::endl;
 
-	if (polygons->size() < 2)
-		return;
 
-	maths::Polygon pol = polygons->at(1);
-	maths::Polygon win = polygons->at(0);
+	maths::Polygon win = *window;
 
 	std::vector<int> *indexAddedPoints = new std::vector<int>();
 	std::vector<int> *addedPointWinPointIndex = new std::vector<int>();
@@ -189,24 +186,28 @@ void Scene::cut()
 	std::cout << "nbpoint=" << nbPoint << std::endl;
 }
 
+void Scene::cut()
+{
+	if (!window->getPoints()->empty() && !polygons->empty())
+	{
+		for (int i = 0; i < polygons->size(); i++)
+		{
+			cut(polygons->at(i));
+		}
+	}
+}
+
 
 void Scene::flush()
 {
-	if (state != ENTER_POINTS)
+	if (state != ENTER_POLYGON)
 	{
 		while (!polygons->empty())
 		{
 			polygons->pop_back();
 		}
-		/*
-		while (!allIntersection->empty())
-		{
-			allIntersection->pop_back();
-		}
-		*/
 		glutPostRedisplay();
 	}
-	
 }
 
 void Scene::lauchOpenGLLoop()
@@ -247,20 +248,23 @@ void Scene::createMenu()
 	mainMenu = glutCreateMenu(Scene::menuCallBack);
 
 	glutAddMenuEntry("Exit", 0);
-	glutAddMenuEntry("Draw points    A", 1);
-	glutAddMenuEntry("Draw polygon   Z", 2);
-	glutAddMenuEntry("Cut            C", 3);
-	glutAddMenuEntry("Fill           F", 4);
+	glutAddMenuEntry("Add polygon       A", 1);
+	glutAddMenuEntry("End edition       Z", 2);
+	glutAddMenuEntry("Cut               C", 3);
+	glutAddMenuEntry("Fill polygon(s)   F", 4);
+	glutAddMenuEntry("Set window        Q", 5);
+	glutAddMenuEntry("Select polygon(s) W", 6);
+	glutAddMenuEntry("Hide/Show window  P", 7);
 	/*
 	if (stackPolygonClicked->size() != 0)
 	{
 	glutAddMenuEntry("Fill           F", 4);
 	}
 	*/
-	if (isInPolygon)
+	/*if (isInPolygon)
 	{
 		glutAddMenuEntry("Coloring polygon", 5);
-	}
+	}*/
 
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
@@ -274,19 +278,25 @@ void Scene::menu(int num) {
 		exit(0);
 		break;
 	case 1:
-		state = ENTER_POINTS;
-		polygons->push_back(*(new maths::Polygon()));
+		input->checkKeyboardInputs('a', 0, 0);
 		break;
 	case 2:
-		state = DRAW;
+		input->checkKeyboardInputs('z', 0, 0);
 		break;
 	case 3:
+		input->checkKeyboardInputs('c', 0, 0);
 		break;
 	case 4:
-		state = FILL;
+		input->checkKeyboardInputs('f', 0, 0);
 		break;
 	case 5:
-		state = COLOR;
+		input->checkKeyboardInputs('q', 0, 0);
+		break;
+	case 6:
+		input->checkKeyboardInputs('w', 0, 0);
+		break;
+	case 7:
+		input->checkKeyboardInputs('p', 0, 0);
 		break;
 	default:
 		break;
@@ -308,14 +318,13 @@ void Scene::mainLoop()
 	auto color_position = glGetAttribLocation(program, "a_Color");
 	auto position_location = glGetAttribLocation(program, "a_Position");
 
-	switch (state)
+	if (state == DRAW)
 	{
-	case DRAW:
 		/*glVertexAttribPointer(color_position, 3, GL_FLOAT, GL_FALSE, 0, color);
 		glEnableVertexAttribArray(color_position);*/
 		if (!polygons->empty())
 		{
-			for (int i = drawWindow ? 0 : 1; i < polygons->size(); i++)
+			for (int i = 0; i < polygons->size(); i++)
 			{
 				const maths::Point *points = polygons->at(i).getPoints()->data();
 				unsigned int size = polygons->at(i).getPoints()->size();
@@ -328,10 +337,21 @@ void Scene::mainLoop()
 				glDisableVertexAttribArray(color_position);
 			}
 		}
+		if (drawWindow)
+		{
+			const maths::Point *points = window->getPoints()->data();
+			unsigned int size = window->getPoints()->size();
 
-		break;
+			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, points);
+			glEnableVertexAttribArray(position_location);
 
-	case FILL:
+			glDrawArrays(GL_LINE_LOOP, 0, size);
+			glDisableVertexAttribArray(position_location);
+			glDisableVertexAttribArray(color_position);
+		}
+
+	}
+	else if (state == FILL)
 	{
 		if (allIntersection->size() == 0)
 		{
@@ -342,7 +362,7 @@ void Scene::mainLoop()
 
 		if (nbIntersection != 0)
 		{
-			for (int i = 0; i<nbIntersection; i += 2)
+			for (int i = 0; i < nbIntersection; i += 2)
 			{
 				glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, &allIntersection->at(i));
 				glEnableVertexAttribArray(position_location);
@@ -353,7 +373,7 @@ void Scene::mainLoop()
 			}
 
 		}
-		
+
 		for (int i = 0; i < polygons->size(); i++)
 		{
 			const maths::Point *points = polygons->at(i).getPoints()->data();
@@ -368,11 +388,11 @@ void Scene::mainLoop()
 			glDisableVertexAttribArray(position_location);
 			glDisableVertexAttribArray(color_position);
 		}
-		break;
 	}
-	case ENTER_POINTS:
+	else if (state == ENTER_POLYGON)
+	{
 
-		for (int i = 0; i < polygons->size()-1; i++)
+		for (int i = 0; i < polygons->size() - 1; i++)
 		{
 			const maths::Point *points = polygons->at(i).getPoints()->data();
 			unsigned int size = polygons->at(i).getPoints()->size();
@@ -384,15 +404,15 @@ void Scene::mainLoop()
 			glDisableVertexAttribArray(position_location);
 			glDisableVertexAttribArray(color_position);
 		}
-		
+
 		const maths::Point *points = polygons->back().getPoints()->data();
 		unsigned int size = polygons->back().getPoints()->size();
-		
+
 		maths::Point tmpPoints[4];
 
 		for (int i = 0; i < size; i++)
 		{
-			
+
 			tmpPoints[0].x = points[i].x - radiusPoint.x;
 			tmpPoints[0].y = points[i].y - radiusPoint.y;
 			tmpPoints[1].x = points[i].x - radiusPoint.x;
@@ -402,9 +422,61 @@ void Scene::mainLoop()
 			tmpPoints[3].x = points[i].x + radiusPoint.x;
 			tmpPoints[3].y = points[i].y + radiusPoint.y;
 
-			//std::cout << "draw point " << i << std::endl;
+			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, tmpPoints);
+			glEnableVertexAttribArray(position_location);
 
-			//std::cout << "x= " << tmpPoints[1].x << "	y="<< tmpPoints[1].y  << std::endl;
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			glDisableVertexAttribArray(position_location);
+			glDisableVertexAttribArray(color_position);
+		}
+		if (drawWindow)
+		{
+			const maths::Point *points = window->getPoints()->data();
+			unsigned int size = window->getPoints()->size();
+
+			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, points);
+			glEnableVertexAttribArray(position_location);
+
+			glDrawArrays(GL_LINE_LOOP, 0, size);
+			glDisableVertexAttribArray(position_location);
+			glDisableVertexAttribArray(color_position);
+		}
+	}
+	else if (state == ENTER_WINDOW)
+	{
+		if (!polygons->empty())
+		{
+			for (int i = 0; i < polygons->size() - 1; i++)
+			{
+				const maths::Point *points = polygons->at(i).getPoints()->data();
+				unsigned int size = polygons->at(i).getPoints()->size();
+
+				glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, points);
+				glEnableVertexAttribArray(position_location);
+
+				glDrawArrays(GL_LINE_LOOP, 0, size);
+				glDisableVertexAttribArray(position_location);
+				glDisableVertexAttribArray(color_position);
+			}
+		}
+		
+
+		const maths::Point *points = window->getPoints()->data();
+		unsigned int size = window->getPoints()->size();
+
+		maths::Point tmpPoints[4];
+
+		for (int i = 0; i < size; i++)
+		{
+
+			tmpPoints[0].x = points[i].x - radiusPoint.x;
+			tmpPoints[0].y = points[i].y - radiusPoint.y;
+			tmpPoints[1].x = points[i].x - radiusPoint.x;
+			tmpPoints[1].y = points[i].y + radiusPoint.y;
+			tmpPoints[2].x = points[i].x + radiusPoint.x;
+			tmpPoints[2].y = points[i].y - radiusPoint.y;
+			tmpPoints[3].x = points[i].x + radiusPoint.x;
+			tmpPoints[3].y = points[i].y + radiusPoint.y;
 
 			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, tmpPoints);
 			glEnableVertexAttribArray(position_location);
@@ -413,8 +485,6 @@ void Scene::mainLoop()
 			glDisableVertexAttribArray(position_location);
 			glDisableVertexAttribArray(color_position);
 		}
-
-		break;
 	}
 
 	glUseProgram(0);
@@ -429,8 +499,11 @@ void Scene::changeState(State s)
 	state = s;
 	switch (state)
 	{
-	case ENTER_POINTS:
+	case ENTER_POLYGON:
 		polygons->push_back(*(new maths::Polygon()));
+		break;
+	case ENTER_WINDOW:
+		window->getPoints()->clear();
 		break;
 	case DRAW:
 		break;
@@ -449,21 +522,47 @@ State Scene::getState()
 
 void Scene::addPoint(maths::Point p)
 {
-	if(!polygons->empty())
+	switch (state)
 	{
+	case ENTER_POLYGON:
+		if (!polygons->empty())
+		{
+			//std::cout << "point added x=" << p.x << " y=" << p.y << std::endl;
+			p.x -= width / 2;
+			p.x /= width / 2;
+			p.y = height - p.y;
+			p.y -= height / 2;
+			p.y /= height / 2;
+			p.x = Math::round(p.x);
+			p.y = Math::round(p.y);
+			//std::cout << "point normalized x=" << p.x << " y=" << p.y << std::endl;
 
+			polygons->back().addPoint(p);
+		}
+		break;
+	case ENTER_WINDOW:
 		//std::cout << "point added x=" << p.x << " y=" << p.y << std::endl;
 		p.x -= width / 2;
-		p.x /= width/2;
+		p.x /= width / 2;
 		p.y = height - p.y;
 		p.y -= height / 2;
-		p.y /= height/2;
+		p.y /= height / 2;
 		p.x = Math::round(p.x);
 		p.y = Math::round(p.y);
 		//std::cout << "point normalized x=" << p.x << " y=" << p.y << std::endl;
 
-		polygons->back().addPoint(p);
+		window->addPoint(p);
+		break;
+	case DRAW:
+		break;
+	case FILL:
+		break;
+	case COLOR:
+		break;
+	default:
+		break;
 	}
+	
 }
 
 void Scene::setDrawWindow()
@@ -636,6 +735,7 @@ void Scene::cursorInPolygon(maths::Point p)
 
 Scene::Scene(int w, int h)
 {
+	window = new maths::Polygon();
 	state = DRAW;
 	height = h;
 	width = w;
