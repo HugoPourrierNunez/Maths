@@ -2,17 +2,7 @@
 
 using namespace maths;
 
-Scene* Scene::currentInstance=nullptr;
-State state;
-std::vector<maths::Polygon> *polygons;
-std::vector<maths::Point>* allIntersection = new std::vector<maths::Point>();
-int windowId;
-int value;
-int option;
-int mainMenu;
-void menu(int num);
-bool isInPolygon = true;
-std::vector<maths::Polygon>* stackPolygonClicked = new std::vector<maths::Polygon>();
+Scene* Scene::currentInstance = nullptr;
 
 int colors[9] = {
 	255, 0, 0,
@@ -189,6 +179,13 @@ void Scene::cut()
 		}
 	}
 	nbPoint = pol.getPoints()->size();
+	if (nbPoint == 0)
+	{
+		for (int i = 0; i < nbPointWin; i++)
+		{
+			pol.addPoint(win.getPoints()->at(i));
+		}
+	}
 	std::cout << "nbpoint=" << nbPoint << std::endl;
 }
 
@@ -247,7 +244,7 @@ void Scene::createMenu()
 {
 
 	// ATTENDS JE SUIS AU TEL AVEC UN COLLEGUE
-	mainMenu = glutCreateMenu(menu);
+	mainMenu = glutCreateMenu(Scene::menuCallBack);
 
 	glutAddMenuEntry("Exit", 0);
 	glutAddMenuEntry("Draw points    A", 1);
@@ -269,7 +266,7 @@ void Scene::createMenu()
 }
 
 // On traite ici le choix de l'utilisateur dans le menu contextuel
-void menu(int num) {
+void Scene::menu(int num) {
 	switch (num)
 	{
 	case 0:
@@ -438,7 +435,7 @@ void Scene::changeState(State s)
 	case DRAW:
 		break;
 	case FILL:
-		//LCARemplissage(polygons->at(0));
+		LCARemplissage(polygons->at(0));
 		break;
 	default:
 		break;
@@ -472,6 +469,11 @@ void Scene::addPoint(maths::Point p)
 void Scene::setDrawWindow()
 {
 	drawWindow = !drawWindow;
+}
+
+void Scene::menuCallBack(int i)
+{
+	Scene::currentInstance->menu(i);
 }
 
 void Scene::drawChar(const char c, const maths::Point position, const maths::Color color)
@@ -641,6 +643,8 @@ Scene::Scene(int w, int h)
 	Scene::currentInstance = this;
 	input = new Input(this);
 	polygons = new std::vector<maths::Polygon>();
+	allIntersection = new std::vector<maths::Point>();
+	stackPolygonClicked = new std::vector<maths::Polygon>();
 
 	radiusPoint.x = 10.0f/ width;
 	radiusPoint.y = 10.0f /height;

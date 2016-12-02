@@ -37,11 +37,19 @@ class Scene
 	int height;
 	void drawChar(const char c, const maths::Point position, const maths::Color color);
 	bool drawWindow = true;
-
+	void menu(int num);
+	int windowId;
+	int value;
+	int option;
+	int mainMenu;
+	bool isInPolygon = true; 
+	State state;
+	std::vector<maths::Polygon> *polygons; 
+	std::vector<maths::Point> *allIntersection ;
+	std::vector<maths::Polygon> *stackPolygonClicked ;
 
 public:
 	void cut();
-	void cut2();
 	void flush();
 	void lauchOpenGLLoop();
 	//static void menuCallBack(int num);
@@ -57,6 +65,7 @@ public:
 	State getState();
 	void addPoint(maths::Point p);
 	void setDrawWindow();
+	static void menuCallBack(int i);
 	Scene(int w, int h);
 	~Scene();
 };
