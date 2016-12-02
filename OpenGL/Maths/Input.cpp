@@ -90,7 +90,7 @@ void Input::checkKeyboardInputs(unsigned char  touche, int x, int y)
 	case 'p':
 		scene->setDrawWindow();
 		glutPostRedisplay();
-
+		break;
 	case 'k':
 		std::cout << "Lecture point intersection" << std::endl;
 		scene->changeState(COLOR);
