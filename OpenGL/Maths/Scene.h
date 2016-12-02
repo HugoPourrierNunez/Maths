@@ -24,6 +24,7 @@
 
 #include "Polygon.h"
 #include "Math.h"
+#include <map>
 
 class Scene
 {
@@ -35,6 +36,7 @@ class Scene
 	int width;
 	int height;
 	void drawChar(const char c, const maths::Point position, const maths::Color color);
+	bool drawWindow = true;
 
 public:
 	void cut();
@@ -48,6 +50,7 @@ public:
 	void changeState(State state);
 	State getState();
 	void addPoint(maths::Point p);
+	void setDrawWindow();
 	Scene(int w, int h);
 	~Scene();
 };

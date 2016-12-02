@@ -95,7 +95,7 @@ maths::Point CVecteur::Intersection(maths::Point p1, maths::Point p2, maths::Poi
 	float coeffDir1 = (p2.y - p1.y) / (p2.x - p1.x);
 	float coeffDir2 = (p4.y - p3.y) / (p4.x - p3.x);
 	
-	cout << coeffDir1 << "  " << coeffDir2 << endl;
+	//cout << coeffDir1 << "  " << coeffDir2 << endl;
 	if (coeffDir1 == coeffDir2)
 	{
 		//cout << "C DLA MERDE" << endl;

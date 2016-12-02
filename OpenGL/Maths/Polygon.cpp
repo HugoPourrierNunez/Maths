@@ -15,13 +15,20 @@ void maths::Polygon::calculateNormals()
 				p2 = points->at(0);
 			else 
 				p2 = points->at(i+1);
-			n.x = (p1.y - p2.y);
-			n.y = -(p1.x - p2.x);		
+			if (sensTrigo)
+			{
+				n.x = (p1.y - p2.y);
+				n.y = -(p1.x - p2.x);
+			}	
+			else
+			{
+				n.x = -(p1.y - p2.y);
+				n.y = (p1.x - p2.x);
+			}
 			normals->push_back(n);
 		}
 	}
 }
-
 
 void maths::Polygon::calculateVectors()
 {
@@ -39,6 +46,10 @@ void maths::Polygon::calculateVectors()
 
 void maths::Polygon::addPoint(maths::Point p)
 {
+	if(points->size()==1)
+	{
+		sensTrigo = p.x < points->at(0).x;
+	}
 	points->push_back(p);
 	visibility->push_back(true);
 }

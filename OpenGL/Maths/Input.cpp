@@ -87,6 +87,9 @@ void Input::checkKeyboardInputs(unsigned char  touche, int x, int y)
 		std::cout << "Lecture point intersection" << std::endl;
 		scene->changeState(FILL);
 		break;
+	case 'p':
+		scene->setDrawWindow();
+		glutPostRedisplay();
 	default:
 		break;
 	}

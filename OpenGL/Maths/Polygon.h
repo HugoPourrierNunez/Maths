@@ -26,6 +26,7 @@ namespace maths
 		std::vector<maths::Point> *normals;
 		std::vector<maths::Point> *vectors;
 		std::vector<bool> *visibility;
+		bool sensTrigo;
 
 	public:
 		void calculateNormals();

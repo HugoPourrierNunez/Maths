@@ -27,14 +27,16 @@ void Scene::cut()
 	maths::Polygon pol = polygons->at(1);
 	maths::Polygon win = polygons->at(0);
 
-	//maths::Polygon *newPol = new maths::Polygon();
+	std::vector<int> *indexAddedPoints = new std::vector<int>();
+	std::vector<int> *addedPointWinPointIndex = new std::vector<int>();
 
 	win.calculateNormals();
 	int nbPoint = pol.getPoints()->size();
 	int decallage = 0;
+	//variables utilisées pour trouver l'intersection la plus proche
 	for (int i=0; i < nbPoint+decallage; i++)
 	{
-		std::cout << "test point n°" << i<<std::endl;
+		std::cout << std::endl << "test point n°" << i<<std::endl;
 		Point p1 = pol.getPoints()->at(i);
 		std::cout << "x=" << p1.x << "		y=" << p1.y << std::endl;
 		Point p2;
@@ -45,79 +47,143 @@ void Scene::cut()
 
 		int nbPointWin = win.getPoints()->size();
 
-		for (int j=0; j < nbPointWin -1; j++)
+		//variable necessaire à ne garder que l'intersection la plus proche
+		float minNorme = -1;
+		Point minIntersection;
+		int minWinIndexPoint;
+
+		for (int j=0; j < nbPointWin ; j++)
 		{
 			Point p3 = win.getPoints()->at(j);
 			Point p4;
 			if (j == nbPointWin - 1)
 				p4 = win.getPoints()->at(0);
-			else
+			else  
 				p4 = win.getPoints()->at(j + 1);
 
 			bool p1Visibility = Math::isPointVisible(p1, p3, win.getNormals()->at(j));
 			if (!p1Visibility)
 				pol.setVisibility(i, false);
 			bool p2Visibility = Math::isPointVisible(p2, p3, win.getNormals()->at(j));
-			if (p1Visibility != p2Visibility)
-			{
-				maths::Point intersection = CVecteur::Intersection(p1, p2, p3,p4);
 
-				if (intersection.x != -1.0 && intersection.y != -1.0 /*&& (p1.x==intersection.x && p1.y==intersection.y)!=true*/)
+				maths::Point intersection = Math::getIntersection2(p1, p2, p3,p4);
+				
+				if (intersection.x != -1 && intersection.y != -1 && (p1.x==intersection.x && p1.y==intersection.y)==false)
 				{
-					pol.addPoint(intersection, i+1);
-					std::cout << "ajout d'un point" << std::endl;
-					std::cout << "x=" << intersection .x<<"		y="<< intersection.y<< std::endl;
-					i++;
-					decallage++;
+					if (minNorme == -1)
+					{
+						minNorme = (intersection.x - p1.x)*(intersection.x - p1.x) + (intersection.y - p1.y)*(intersection.y - p1.y);
+						minIntersection = intersection;
+						minWinIndexPoint = j;
+					}
+					else
+					{
+						float norme = (intersection.x - p1.x)*(intersection.x - p1.x) + (intersection.y - p1.y)*(intersection.y - p1.y);
+						if (norme < minNorme)
+						{
+							minNorme = norme;
+							minIntersection = intersection;
+							minWinIndexPoint = j;
+						}
+					}
 				}
-			}
 		}
+
+		if (minNorme != -1)
+		{
+			pol.addPoint(minIntersection, i + 1);
+			indexAddedPoints->push_back(i + 1);
+			std::cout << "ajout index added point = " << i + 1<< std::endl;
+			addedPointWinPointIndex->push_back(minWinIndexPoint);
+			std::cout << "ajout d'un point" << std::endl;
+			std::cout << "x=" << minIntersection.x << "		y=" << minIntersection.y << std::endl;
+			//i++;
+			decallage++;
+		}
+
 	}
 
+	int nbPointWin = win.getPoints()->size();
 	nbPoint = pol.getPoints()->size();
-	std::cout << "nbpoint=" << nbPoint << std::endl;
+	
+	//block pour ajouter les points manquants
+	int nbAddedPoint = indexAddedPoints->size();
+	decallage = 0;
+	for (int i = 0; i < nbAddedPoint; i++)
+	{
+		int index;
+		int index1 = indexAddedPoints->at(i);
+		index = index1 + 1;
+		if (index == nbPoint + decallage)
+			index = 0;
+		int index2;
+		if (i == nbAddedPoint - 1)
+			index2 = indexAddedPoints->at(0);
+		else
+			index2 = indexAddedPoints->at(i + 1);
+		//sort si aucun point entre les 2 points ajouté
+		if (index == index2)
+			continue;
+
+		bool findVisiblePoint = false;
+		while (index != index2 && !findVisiblePoint)
+		{
+			if (pol.isPointVisible(index + decallage))
+			{
+				findVisiblePoint = true;
+			}
+			index++;
+			if (index == nbPoint + decallage)
+				index = 0;
+		}
+		if (!findVisiblePoint)
+		{
+			//si il y a des points entre les 2 points ajoutés mais aucun visible il faut ajouter les points de la fenetre
+			int indexWin1 = addedPointWinPointIndex->at(i) + 1;
+			if (indexWin1 == nbPointWin)
+				indexWin1 = 0;
+			int indexWin2;
+			if (i == nbAddedPoint - 1)
+				indexWin2 = addedPointWinPointIndex->at(0);
+			else
+				indexWin2 = addedPointWinPointIndex->at(i + 1);
+			indexWin2++;
+			if (indexWin2 == nbPointWin)
+				indexWin2 = 0;
+
+			while (indexWin1 != indexWin2)
+			{
+				pol.addPoint(win.getPoints()->at(indexWin1), index1 +decallage+ 1);
+				decallage++;
+				indexWin1++;
+				if (indexWin1 == nbPointWin)
+					indexWin1 = 0;
+			}
+		}
+
+	}
+	//enlève les points qui ne sont pas visible
+	nbPoint = pol.getPoints()->size();
+	std::cout << "nbpoint=" << nbPoint << std::endl; 
 	decallage = 0;
 	for (int i = 0; i < nbPoint-decallage; i++)
 	{
-		std::cout << "test visibility point n°" << i << std::endl;
 		if (!pol.isPointVisible(i))
 		{
+			std::cout << "hidden" << std::endl; 
 			pol.removePoint(i);
 			i--;
 			decallage++;
-
+		}
+		else
+		{
+			std::cout << "visible" << std::endl;
 		}
 	}
 	nbPoint = pol.getPoints()->size();
 	std::cout << "nbpoint=" << nbPoint << std::endl;
 }
 
-void Scene::cut2()
-{
-	/*if (polygons->size() < 2)
-		return;
-
-	maths::Polygon pol = polygons->at(1);
-	maths::Polygon win = polygons->at(0);
-
-	int n3 = win.getPoints()->size();
-	int n1 = pol.getPoints()->size();
-	int n2;
-	maths::Point s, f, i;
-
-	std::vector<maths::Point> *ps;
-
-	for (int i = 0; i < n3-1 ;)
-	{
-		n2 = 0;
-		ps = new std::vector<maths::Point>();
-		for (int j = 0; j < n1;)
-		{
-			if(j==0)
-				f=pol.getPoints()->at()
-		}
-	}*/
-}
 
 void Scene::flush()
 {
@@ -237,20 +303,23 @@ void Scene::mainLoop()
 	case DRAW:
 		/*glVertexAttribPointer(color_position, 3, GL_FLOAT, GL_FALSE, 0, color);
 		glEnableVertexAttribArray(color_position);*/
-		for (int i = 0; i < polygons->size(); i++)
+		if (!polygons->empty())
 		{
-			const maths::Point *points =  polygons->at(i).getPoints()->data();
-			unsigned int size = polygons->at(i).getPoints()->size();
+			for (int i = drawWindow ? 0 : 1; i < polygons->size(); i++)
+			{
+				const maths::Point *points = polygons->at(i).getPoints()->data();
+				unsigned int size = polygons->at(i).getPoints()->size();
 
-			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, points);
-			glEnableVertexAttribArray(position_location);
+				glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, points);
+				glEnableVertexAttribArray(position_location);
 
-			glDrawArrays(GL_LINE_LOOP, 0, size);
-			glDisableVertexAttribArray(position_location);
-			glDisableVertexAttribArray(color_position);
+				glDrawArrays(GL_LINE_LOOP, 0, size);
+				glDisableVertexAttribArray(position_location);
+				glDisableVertexAttribArray(color_position);
+			}
 		}
-
 		
+
 
 		break;
 	case ENTER_POINTS:
@@ -285,9 +354,9 @@ void Scene::mainLoop()
 			tmpPoints[3].x = points[i].x + radiusPoint.x;
 			tmpPoints[3].y = points[i].y + radiusPoint.y;
 
-			std::cout << "draw point " << i << std::endl;
+			//std::cout << "draw point " << i << std::endl;
 
-			std::cout << "x= " << tmpPoints[1].x << "	y="<< tmpPoints[1].y  << std::endl;
+			//std::cout << "x= " << tmpPoints[1].x << "	y="<< tmpPoints[1].y  << std::endl;
 
 			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, tmpPoints);
 			glEnableVertexAttribArray(position_location);
@@ -331,16 +400,23 @@ void Scene::addPoint(maths::Point p)
 	if(!polygons->empty())
 	{
 
-		std::cout << "point added x=" << p.x << " y=" << p.y << std::endl;
+		//std::cout << "point added x=" << p.x << " y=" << p.y << std::endl;
 		p.x -= width / 2;
 		p.x /= width/2;
 		p.y = height - p.y;
 		p.y -= height / 2;
 		p.y /= height/2;
-		std::cout << "point normalized x=" << p.x << " y=" << p.y << std::endl;
+		p.x = Math::round(p.x);
+		p.y = Math::round(p.y);
+		//std::cout << "point normalized x=" << p.x << " y=" << p.y << std::endl;
 
 		polygons->back().addPoint(p);
 	}
+}
+
+void Scene::setDrawWindow()
+{
+	drawWindow = !drawWindow;
 }
 
 void Scene::drawChar(const char c, const maths::Point position, const maths::Color color)
