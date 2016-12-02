@@ -83,16 +83,18 @@ void Input::checkKeyboardInputs(unsigned char  touche, int x, int y)
 		std::cout << "flush polygons" << std::endl;
 		scene->flush();
 		break;	
-	case 'q':
+	case 'f':
 		std::cout << "Lecture point intersection" << std::endl;
 		scene->changeState(FILL);
+		break;
+	case 'k':
+		std::cout << "Lecture point intersection" << std::endl;
+		scene->changeState(COLOR);
 		break;
 	default:
 		break;
 	}
 }
-
-
 
 void Input::checkMouseClicks(int button, int state, int x, int y)
 {
@@ -104,10 +106,13 @@ void Input::checkMouseClicks(int button, int state, int x, int y)
 		//onMouse = 1;
 		glutPostRedisplay();
 	}
-	/*
-	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
+
+	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN && scene->getState() == DRAW)
 	{
-		glutCreateMenu(Scene::menuCallBack);
-		glutAttachMenu(GLUT_RIGHT_BUTTON);
-	}*/
+		maths::Point p;
+		p.x = x;
+		p.y = y;
+
+		scene->cursorInPolygon(p);
+	}
 }

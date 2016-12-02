@@ -12,6 +12,7 @@ int option;
 int mainMenu;
 void menu(int num);
 bool isInPolygon = true;
+std::vector<maths::Polygon>* stackPolygonClicked = new std::vector<maths::Polygon>();
 
 void Scene::drawCallBack()
 {
@@ -128,6 +129,12 @@ void Scene::flush()
 		{
 			polygons->pop_back();
 		}
+		/*
+		while (!allIntersection->empty())
+		{
+			allIntersection->pop_back();
+		}
+		*/
 		glutPostRedisplay();
 	}
 	
@@ -166,19 +173,21 @@ void Scene::initOpenGl(int argc, const char* argv)
 
 void Scene::createMenu()
 {
-	option = glutCreateMenu(menu);
 
+	// ATTENDS JE SUIS AU TEL AVEC UN COLLEGUE
+	mainMenu = glutCreateMenu(menu);
+
+	glutAddMenuEntry("Exit", 0);
 	glutAddMenuEntry("Draw points    A", 1);
 	glutAddMenuEntry("Draw polygon   Z", 2);
 	glutAddMenuEntry("Cut            C", 3);
 	glutAddMenuEntry("Fill           F", 4);
-
-	
-	mainMenu = glutCreateMenu(menu);
-
-	glutAddSubMenu("Options", option);
-	glutAddMenuEntry("Exit", 0);
-	
+	/*
+	if (stackPolygonClicked->size() != 0)
+	{
+	glutAddMenuEntry("Fill           F", 4);
+	}
+	*/
 	if (isInPolygon)
 	{
 		glutAddMenuEntry("Coloring polygon", 5);
@@ -205,8 +214,10 @@ void menu(int num) {
 	case 3:
 		break;
 	case 4:
+		state = FILL;
 		break;
 	case 5:
+		state = COLOR;
 		break;
 	default:
 		break;
@@ -446,11 +457,7 @@ std::vector<maths::Point>* Scene::LCARemplissage(maths::Polygon polygon)
 				pointsIntersection->push_back(pointIntersection);
 			}
 		}
-		int i = y;
 		
-		std::vector<maths::Point>* test = pointsIntersection; // Pour debug
-		std::cout << "Nombre d'intersection à l'itération " << y << " : " << pointsIntersection->size() << std::endl;
-
 		if (pointsIntersection->size() != 0)
 		{
 			// On dessine entre chaque intersection avec la bonne couleur
@@ -498,6 +505,34 @@ maths::Point* Scene::ConvertPointPixelToOpenGLUnit(maths::Point point)
 	pointOpenGL->y = w * (double)point.y - 1.0;
 
 	return pointOpenGL;
+}
+
+bool Scene::isPointInPol(maths::Polygon pol, maths::Point p)
+{
+	pol.calculateNormals();
+	int nbPointWin = pol.getPoints()->size();
+
+	for (int j = 0; j < nbPointWin; j++)
+	{
+		maths::Point p1 = pol.getPoints()->at(j);
+
+		if (!Math::isPointVisible(p, p1, pol.getNormals()->at(j)))
+			return false;
+	}
+	return true;
+}
+
+void Scene::cursorInPolygon(maths::Point p)
+{
+	for (int i = 0; i < polygons->size(); i++)
+	{
+		bool dog = isPointInPol(polygons->at(i), p);
+		
+		if (dog == true)
+		{
+			stackPolygonClicked->push_back(polygons->at(i));
+		}
+	}
 }
 
 Scene::Scene(int w, int h)

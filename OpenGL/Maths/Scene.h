@@ -47,6 +47,8 @@ public:
 	void mainLoop();
 	void createMenu();
 	maths::Point* isVertexFromPolygon(maths::Polygon polygon, maths::Point pointTest);
+	bool isPointInPol(maths::Polygon pol, maths::Point p);
+	void cursorInPolygon(maths::Point p);
 	maths::Point* ConvertPointPixelToOpenGLUnit(maths::Point point);
 	void changeState(State state);
 	State getState();
