@@ -14,6 +14,12 @@ void menu(int num);
 bool isInPolygon = true;
 std::vector<maths::Polygon>* stackPolygonClicked = new std::vector<maths::Polygon>();
 
+int colors[9] = {
+	255, 0, 0,
+	0, 255, 0,
+	0, 0, 255
+};
+
 void Scene::drawCallBack()
 {
 	Scene::currentInstance->mainLoop();
@@ -288,8 +294,9 @@ void Scene::mainLoop()
 			unsigned int size = polygons->at(i).getPoints()->size();
 
 			glVertexAttribPointer(position_location, 2, GL_FLOAT, GL_FALSE, 0, points);
+			glVertexAttribPointer(color_position, 3, GL_INT, GL_FALSE, 0, colors);
 			glEnableVertexAttribArray(position_location);
-
+			glEnableVertexAttribArray(color_position);
 			glDrawArrays(GL_LINE_LOOP, 0, size);
 			glDisableVertexAttribArray(position_location);
 			glDisableVertexAttribArray(color_position);
@@ -443,6 +450,7 @@ std::vector<maths::Point>* Scene::LCARemplissage(maths::Polygon polygon)
 			maths::Point* pointYLigneBalayage = ConvertPointPixelToOpenGLUnit(ligneBallayage->at(1));
 
 			// Petit cas particulier pour le dernier point que l'on associe au premier point pour tester le côté qui ferme le polygon
+			// TODO : Trier intersection avec les segements ayant la norme la plus petite par rapport au bord gauche de la fenêtre
 			if (i == nbPoint - 1)
 			{
 				pointIntersection = CVecteur::Intersection(*pointXLigneBalayage, *pointYLigneBalayage, pointsFromPolygon->at(i), pointsFromPolygon->at(0));
@@ -456,6 +464,7 @@ std::vector<maths::Point>* Scene::LCARemplissage(maths::Polygon polygon)
 			{
 				pointsIntersection->push_back(pointIntersection);
 			}
+			// TODO: Faire le tri ici
 		}
 		
 		if (pointsIntersection->size() != 0)
